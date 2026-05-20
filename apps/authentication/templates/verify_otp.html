@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scentora | Verify Account</title>
+  <link rel="stylesheet" href="{% static 'css/verify_otp.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h1 class="brand">SCENTORA</h1>
+
+    <div class="card">
+      <div class="icon-circle">
+        <img src="{% static 'images/lock-icon.png' %}" alt="Lock Icon">
+      </div>
+
+      <h2>Verify Your Account</h2>
+      <p class="subtitle">Enter the 6-digit code sent to your registered email address.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" required>
+          <input type="text" maxlength="1" required>
+          <input type="text" maxlength="1" required>
+          <input type="text" maxlength="1" required>
+          <input type="text" maxlength="1" required>
+          <input type="text" maxlength="1" required>
+        </div>
+
+        <p class="resend-text">
+          Didn’t receive the code?
+          <a href="#" class="resend-link">Resend in <span id="timer">00:30</span></a>
+        </p>
+
+        <button type="submit">Verify OTP →</button>
+      </form>
+
+      <a href="{% url 'login' %}" class="back-link">← Back to Login</a>
+    </div>
+  </div>
+
+  <script>
+    // Simple countdown timer
+    let timeLeft = 30;
+    const timerElement = document.getElementById('timer');
+    const countdown = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        timerElement.textContent = "00:00";
+      } else {
+        timerElement.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+        timeLeft--;
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

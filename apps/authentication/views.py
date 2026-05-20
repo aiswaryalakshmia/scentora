@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
-from .models import User
+from .models import User,OTP
 from django.contrib.auth import authenticate, login
+import random
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 def signup(request):
@@ -76,3 +79,44 @@ def login_view(request):
 def home(request):
 
     return render(request, 'home.html')
+
+def forgot_password(request):
+
+    if request.method == 'POST':
+
+        email = request.POST.get('email')
+
+        try:
+
+            user = User.objects.get(email=email)
+
+            otp = str(random.randint(100000, 999999))
+
+            OTP.objects.create(
+                user=user,
+                otp_code=otp
+            )
+
+            send_mail(
+                'Scentora Password Reset OTP',
+                f'Your OTP is {otp}',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            request.session['reset_email'] = email
+
+            return redirect('verify_otp')
+
+        except User.DoesNotExist:
+
+            print('User does not exist')
+
+    return render(
+        request,
+        'forgot_password.html'
+    )
+
+def verify_otp(request):
+    return render(request, 'verify_otp.html')
