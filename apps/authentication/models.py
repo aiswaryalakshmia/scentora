@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import timedelta
 
-
-
 class User(AbstractUser):
 
     full_name = models.CharField(max_length=150)

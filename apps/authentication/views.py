@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 import random
 from django.core.mail import send_mail
 from django.conf import settings
-
+from django.utils import timezone
 
 def signup(request):
 
@@ -43,8 +43,25 @@ def signup(request):
             password=password,
             referral_code=referral
         )
+        otp = str(random.randint(100000, 999999))
 
-        return redirect('login')
+        OTP.objects.create(
+            user=user,
+            otp_code=otp
+        )
+
+        send_mail(
+            'Scentora Password Reset OTP',
+            f'Your OTP is {otp}',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+
+        request.session['reset_email'] = email
+        request.session['otp_purpose'] = 'signup'
+
+        return redirect('verify_otp')
 
     return render(request, 'signup.html')
 
@@ -106,6 +123,7 @@ def forgot_password(request):
             )
 
             request.session['reset_email'] = email
+            request.session['otp_purpose'] = 'forgotp'
 
             return redirect('verify_otp')
 
@@ -119,4 +137,75 @@ def forgot_password(request):
     )
 
 def verify_otp(request):
+
+    if request.method == 'POST':
+
+        entered_otp = (
+        request.POST.get('otp1', '') +
+        request.POST.get('otp2', '') +
+        request.POST.get('otp3', '') +
+        request.POST.get('otp4', '') +
+        request.POST.get('otp5', '') +
+        request.POST.get('otp6', '')
+)
+
+        email = request.session.get('reset_email')
+        otp_purpose = request.session.get('otp_purpose')
+
+        try:
+
+            user = User.objects.get(email=email)
+
+            otp_obj = OTP.objects.filter(
+                user=user,
+                otp_code=entered_otp,
+                is_used=False
+            ).latest('created_at')
+
+            # check expiry
+            if timezone.now() > otp_obj.expires_at:
+
+                return render(request, 'verify_otp.html', {
+                    'error': 'OTP expired'
+                })
+
+            # mark OTP used
+            otp_obj.is_used = True
+            otp_obj.save()
+
+            if otp_purpose=='signup':
+                return redirect('login')
+
+            return redirect('reset_password')
+
+        except OTP.DoesNotExist:
+
+            return render(request, 'verify_otp.html', {
+                'error': 'Invalid OTP'
+            })
+
     return render(request, 'verify_otp.html')
+
+def reset_password(request):
+
+    if request.method == 'POST':
+
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password != confirm_password:
+
+            return render(request, 'reset_password.html', {
+                'error': 'Passwords do not match'
+            })
+
+        email = request.session.get('reset_email')
+
+        user = User.objects.get(email=email)
+
+        user.set_password(password)
+        user.save()
+
+        return redirect('login')
+
+    return render(request, 'reset_password.html')

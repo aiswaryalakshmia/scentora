@@ -22,13 +22,18 @@
       <form method="post">
         {% csrf_token %}
         <div class="otp-inputs">
-          <input type="text" maxlength="1" required>
-          <input type="text" maxlength="1" required>
-          <input type="text" maxlength="1" required>
-          <input type="text" maxlength="1" required>
-          <input type="text" maxlength="1" required>
-          <input type="text" maxlength="1" required>
+          <input type="text" name="otp1" maxlength="1" required>
+          <input type="text" name="otp2" maxlength="1" required>
+          <input type="text" name="otp3" maxlength="1" required>
+          <input type="text" name="otp4" maxlength="1" required>
+          <input type="text" name="otp5" maxlength="1" required>
+          <input type="text" name="otp6" maxlength="1" required>
         </div>
+        {% if error %}
+          <p style="color:red; margin-top:10px;">
+            {{ error }}
+          </p>
+        {% endif %}
 
         <p class="resend-text">
           Didn’t receive the code?
@@ -36,6 +41,7 @@
         </p>
 
         <button type="submit">Verify OTP →</button>
+
       </form>
 
       <a href="{% url 'login' %}" class="back-link">← Back to Login</a>
