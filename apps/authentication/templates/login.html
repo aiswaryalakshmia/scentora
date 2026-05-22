@@ -44,7 +44,9 @@
 
         <button class="google-btn">
           <img src="{% static 'images/google-icon.png' %}" alt="Google Icon">
-          Continue with Google
+          <a href="/accounts/google/login/">
+            Continue with Google
+          </a>
         </button>
 
         <p class="signup-text">Don’t have an account? <a href="{% url 'signup' %}">Sign Up</a></p>

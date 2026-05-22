@@ -11,7 +11,9 @@ class User(AbstractUser):
 
     mobile_number = models.CharField(
         max_length=15,
-        unique=True
+        unique=True,
+        blank=True,
+        null=True
     )
 
     referral_code = models.CharField(

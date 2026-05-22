@@ -51,7 +51,7 @@ def signup(request):
         )
 
         send_mail(
-            'Scentora Password Reset OTP',
+            'Scentora Signup Verification',
             f'Your OTP is {otp}',
             settings.EMAIL_HOST_USER,
             [email],
