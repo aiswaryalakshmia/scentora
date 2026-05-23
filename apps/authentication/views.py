@@ -93,10 +93,6 @@ def login_view(request):
 
     return render(request, 'login.html')
 
-def home(request):
-
-    return render(request, 'home.html')
-
 def forgot_password(request):
 
     if request.method == 'POST':
@@ -209,3 +205,40 @@ def reset_password(request):
         return redirect('login')
 
     return render(request, 'reset_password.html')
+
+def resend_otp(request):
+
+    email = request.session.get('reset_email')
+
+    if not email:
+        return redirect('forgot_password')
+
+    try:
+
+        user = User.objects.get(email=email)
+
+        OTP.objects.filter(
+            user=user,
+            is_used=False
+        ).update(is_used=True)
+
+        otp = str(random.randint(100000, 999999))
+
+        OTP.objects.create(
+            user=user,
+            otp_code=otp
+        )
+
+        send_mail(
+            'Scentora OTP Verification',
+            f'Your new OTP is {otp}',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+
+        return redirect('verify_otp')
+
+    except User.DoesNotExist:
+
+        return redirect('forgot_password')

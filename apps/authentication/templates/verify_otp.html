@@ -34,10 +34,25 @@
             {{ error }}
           </p>
         {% endif %}
+        {% if success %}
+          <p style="color:green; margin-top:10px;">
+            {{ success }}
+          </p>
+        {% endif %}
 
         <p class="resend-text">
           Didn’t receive the code?
-          <a href="#" class="resend-link">Resend in <span id="timer">00:30</span></a>
+
+          <span id="timer-container">
+            Resend in <span id="timer">00:30</span>
+          </span>
+
+          <a href="{% url 'resend_otp' %}"
+            class="resend-link"
+            id="resend-link"
+            style="display:none;">
+            Resend OTP
+          </a>
         </p>
 
         <button type="submit">Verify OTP →</button>
@@ -49,18 +64,32 @@
   </div>
 
   <script>
-    // Simple countdown timer
-    let timeLeft = 30;
-    const timerElement = document.getElementById('timer');
-    const countdown = setInterval(() => {
-      if (timeLeft <= 0) {
-        clearInterval(countdown);
-        timerElement.textContent = "00:00";
-      } else {
-        timerElement.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
-        timeLeft--;
-      }
-    }, 1000);
-  </script>
-</body>
+  let timeLeft = 30;
+
+  const timerElement = document.getElementById('timer');
+  const resendLink = document.getElementById('resend-link');
+  const timerContainer = document.getElementById('timer-container');
+
+  const countdown = setInterval(() => {
+
+    if (timeLeft <= 0) {
+
+      clearInterval(countdown);
+
+      timerContainer.style.display = "none";
+
+      resendLink.style.display = "inline";
+
+    } else {
+
+      timerElement.textContent =
+        `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+
+      timeLeft--;
+
+    }
+
+  }, 1000);
+</script>
+</body
 </html>
